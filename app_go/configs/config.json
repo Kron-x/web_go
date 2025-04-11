@@ -1,0 +1,5 @@
+{
+    "port": "5000",
+    "images_dir": "./static/images",
+    "log_file": "logs/server.log"
+}
