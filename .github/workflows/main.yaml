@@ -55,7 +55,7 @@ jobs:
       - name: Check DB
         run: |
           # Проверяем, что сообщение попало в БД
-          docker-compose exec -T postgres psql -U postgres -d test -c "SELECT * FROM messages;" | grep "test" || exit 1
+          docker compose exec -T postgres psql -U postgres -d test -c "SELECT * FROM messages;" | grep "test" || exit 1
 
       - name: Cleanup (containers down)
         if: always()
