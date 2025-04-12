@@ -10,16 +10,21 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      POSTGRES_USER: postgres  # Тестовые значения, реальные в secret или .env (локально)
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: test
-      POSTGRES_HOST: postgres
-      POSTGRES_PORT: 5432
-
     steps:
       - uses: actions/checkout@v4
 
+      - name: Create .env file
+        run: |
+          cat << EOF > .env
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_DB=test
+          POSTGRES_HOST=postgres
+          POSTGRES_PORT=5432
+          # Добавьте другие переменные, если нужно
+          EOF
+          cat .env  # Для проверки (опционально)
+          
       - name: Install Docker Compose (v2)
         run: |
           mkdir -p ~/.docker/cli-plugins
