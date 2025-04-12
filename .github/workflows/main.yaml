@@ -1,0 +1,49 @@
+name: ci-cd
+
+on:
+  push:
+    branches:
+      - main   # Запускать пайплайн при пуше в ветку main
+    workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest  # или `self-hosted`, если свой раннер
+    container:
+      image: docker/compose:latest  # Готовый образ с docker-compose
+      options: --privileged --network host  # Важно для работы Docker-in-Docker
+    env:
+      POSTGRES_USER: postgres  # Тестовые значения, реальные в secret или .env (локально)
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: test
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Launch containers
+        run: docker-compose up -d
+
+      - name: Wait for PostgreSQL
+        run: |
+          until docker-compose exec db pg_isready -U postgres; do
+            sleep 2
+          done
+
+      - name: Test data flow
+        run: |
+          # Отправляем данные в Go-сервис
+          echo "Sending test message..."
+          curl -X POST "http://localhost:5000/submit-text" \
+            -H "Content-Type: application/json" \
+            -d '{"text": "github_actions_test"}'
+          
+          # Проверка БД
+          echo "Checking database..."
+          docker-compose exec postgres psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT * FROM messages;"  # Для дебага
+          docker-compose exec postgres psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT * FROM messages WHERE text = 'github_actions_test';" | grep "github_actions_test" || exit 1
+
+      - name: Stop containers
+        if: always()
+        run: docker-compose down
