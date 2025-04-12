@@ -3,15 +3,19 @@ package main
 import (
     "net/http"
     "os"
+    "io"
+    "fmt"
     "log"
     "os/signal"
     "syscall"
     "time"
     "context"
 
+    _ "github.com/lib/pq"
     "github.com/prometheus/client_golang/prometheus/promhttp"
 	"app_go/internal/handlers"   //импорт кастомных хендлеров
     "app_go/pkg/config"
+    "app_go/pkg/postgres"  
 )
 
 func main() {
@@ -23,8 +27,35 @@ func main() {
         log.Fatalf("Failed to open log file: %v", err)
     }
     defer logFile.Close()
-    log.SetOutput(logFile)
+    log.SetOutput(io.MultiWriter(os.Stdout, logFile))
+
     log.Printf("Starting server on port %s", config.Port)
+    
+    
+    // Инициализация базы данных
+    connStr := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable",
+                            os.Getenv("POSTGRES_USER"),
+                            os.Getenv("POSTGRES_DB"),
+                            os.Getenv("POSTGRES_PASSWORD"),
+                            os.Getenv("POSTGRES_HOST"),
+                            os.Getenv("POSTGRES_PORT"))
+    
+    // Ждём готовности PostgreSQL (макс. 30 секунд)
+    log.Println("Waiting for PostgreSQL...")
+    for i := 0; i < 6; i++ {
+        if err := postgres.CheckConnection(connStr); err == nil {
+            break
+        }
+        log.Printf("Attempt %d: PostgreSQL not ready, retrying...", i+1)
+        time.Sleep(5 * time.Second)
+    }
+    
+    
+    if err := postgres.Init(connStr); err != nil {
+        log.Fatalf("Ошибка инициализации базы данных: %v", err)
+    }
+    defer postgres.Close()
+    
 
     // 1. Создаём отдельный HTTP-сервер для метрик на порту 8080
     metricsMux := http.NewServeMux()
@@ -35,7 +66,7 @@ func main() {
         Handler: metricsMux,
     }
 
-    // 2. Основной сервер (как у вас было)
+    // 2. Основной сервер (как было)
     mainMux := http.NewServeMux()
     mainMux.Handle("/", handlers.LoggingMiddleware(http.HandlerFunc(handlers.HomeHandler)))
     mainMux.Handle("/images/", handlers.LoggingMiddleware(http.StripPrefix("/images/", http.FileServer(http.Dir(config.ImagesDir)))))
@@ -62,7 +93,6 @@ func main() {
             log.Fatalf("Main server error: %v", err)
         }
     }()
-
 
     // Graceful shutdown для обоих серверов
     stop := make(chan os.Signal, 1)

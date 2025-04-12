@@ -9,9 +9,10 @@ import (
 
 
 type Config struct {
-    Port      string `json:"port"`
-    ImagesDir string `json:"images_dir"`
-    LogFile   string `json:"log_file"`
+    Port          string `json:"port"`
+    ImagesDir     string `json:"images_dir"`
+    LogFile       string `json:"log_file"`
+    PortMetrics   string `json:"port_metrics"`
 }
 
 func LoadConfig() Config {

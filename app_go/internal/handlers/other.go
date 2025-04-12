@@ -6,6 +6,7 @@ import (
     "log"
     "net/http"
     "time"
+	"app_go/pkg/postgres"
 )
 
 // логирования запросов
@@ -31,7 +32,20 @@ func SubmitTextHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Неверный формат запроса", http.StatusBadRequest)
 		return
 	}
+	
+	
+	// Сохраняем сообщение в базу данных
 
+	log.Printf("Saving message to DB: %s", request.Text)
+
+	msg , err := postgres.SaveMessage(request.Text)
+	if err != nil {
+		log.Printf("DB Save error: %v", err)
+		http.Error(w, "Ошибка при сохранении сообщения", http.StatusInternalServerError)
+		return
+	}
+	log.Printf("Message saved with ID: %d", msg.ID)
+	
 	// Утилизация текста (например, просто возвращаем его обратно)
 	response := map[string]string{
 		"message": "Вы ввели: " + request.Text,
