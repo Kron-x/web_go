@@ -9,42 +9,50 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # или `self-hosted`, если свой раннер
-    container:
-      image: docker/compose:latest  # Готовый образ с docker-compose
-      options: --privileged --network host  # Важно для работы Docker-in-Docker
+    runs-on: ubuntu-latest
     env:
       POSTGRES_USER: postgres  # Тестовые значения, реальные в secret или .env (локально)
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: test
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Launch containers
-        run: docker-compose up -d
+      - name: Set up Docker
+        uses: docker/setup-qemu-action@v2
+        if: ${{ false }}  # Отключаем, если не нужна поддержка ARM
 
-      - name: Wait for PostgreSQL
+      - name: Set up Docker Compose
+        uses: docker/setup-buildx-action@v2
+        if: ${{ false }}  # Отключаем, если не нужен Buildx
+
+      - name: Start services
         run: |
-          until docker-compose exec db pg_isready -U postgres; do
+          docker-compose up -d
+          docker-compose ps  # Проверяем, что всё запустилось
+
+      - name: Waiting connect to webserver
+        run: |
+          # Ждём готовности сервиса (пример для порта 5000)
+          until curl -s http://localhost:5000; do
             sleep 2
           done
-
-      - name: Test data flow
-        run: |
-          # Отправляем данные в Go-сервис
-          echo "Sending test message..."
+      
+      - name: Send message
+        run: |    
+          # Тестируем отправку сообщения
           curl -X POST "http://localhost:5000/submit-text" \
             -H "Content-Type: application/json" \
-            -d '{"text": "github_actions_test"}'
-          
-          # Проверка БД
-          echo "Checking database..."
-          docker-compose exec postgres psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT * FROM messages;"  # Для дебага
-          docker-compose exec postgres psql -U $POSTGRES_USER -d $POSTGRES_DB -c "SELECT * FROM messages WHERE text = 'github_actions_test';" | grep "github_actions_test" || exit 1
+            -d '{"text": "test"}' \
+            --fail --silent --show-error
 
-      - name: Stop containers
+      - name: Check DB
+        run: |
+          # Проверяем, что сообщение попало в БД
+          docker-compose exec -T postgres psql -U postgres -d test -c "SELECT * FROM messages;" | grep "test" || exit 1
+
+      - name: Cleanup (containers down)
         if: always()
         run: docker-compose down
