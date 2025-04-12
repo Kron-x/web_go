@@ -20,16 +20,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Docker Compose
+      - name: Install Docker Compose (v2)
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose-plugin
-          docker compose version  # Проверка
+          mkdir -p ~/.docker/cli-plugins
+          curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o ~/.docker/cli-plugins/docker-compose
+          chmod +x ~/.docker/cli-plugins/docker-compose
+          docker compose version  # Проверяем установку
 
-      - name: Start services
+      - name: Run services
         run: |
-          docker-compose up -d
-          docker-compose ps  # Проверяем, что всё запустилось
+          docker compose up -d
+          docker compose ps
 
       - name: Waiting connect to webserver
         run: |
