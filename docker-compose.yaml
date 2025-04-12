@@ -4,8 +4,8 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
-      - "5000:5000"
+      - "${PORT_METRICS:-8080}:8080"
+      - "${PORT_WEB:-5000}:5000"
     depends_on:
       postgres: 
         condition: service_healthy # Ждём запуска Postgres
