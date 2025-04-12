@@ -1,5 +1,3 @@
-version: '1'
-
 services:
   app:
     build:
@@ -8,3 +6,37 @@ services:
     ports:
       - "8080:8080"
       - "5000:5000"
+    depends_on:
+      postgres: 
+        condition: service_healthy # Ждём запуска Postgres
+    env_file:
+      - .env
+    networks:
+      - app-network  # Общая сеть
+      
+
+  # Контейнер с PostgreSQL
+  postgres:
+    image: postgres:15-alpine  # Лёгкий Alpine-образ
+    env_file:
+      - .env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Сохраняем данные
+    ports:
+      - "${POSTGRES_HOST_PORT:-5432}:5432"  # Проброс порта (для подключения с хоста)
+    networks:
+      - app-network
+    healthcheck:  # Опционально: проверка готовности БД
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+# Объявляем сети и тома
+volumes:
+  postgres_data:  # Том для данных Postgres (не удаляется при перезапуске)
+
+# Локальная сеть???
+networks:
+  app-network:
+    driver: bridge
