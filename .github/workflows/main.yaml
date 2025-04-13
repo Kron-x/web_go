@@ -4,7 +4,7 @@ on:
   push:
     branches:
       #- main   # Запускать пайплайн при пуше в ветку main
-      #- v0.4
+      - v0.4
     workflow_dispatch:
 
 jobs:
