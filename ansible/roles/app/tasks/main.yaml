@@ -5,7 +5,7 @@
   register: repo_exists
 
 - name: Check app_dir
-  run: echo {{ app_dir }}
+  command: echo {{ app_dir }}
 
 - name: Clone or update repo
   git:
