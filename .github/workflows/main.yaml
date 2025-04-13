@@ -81,6 +81,10 @@ jobs:
           # Добавляем сервер в known_hosts (замените your-server-ip)
           ssh-keyscan -T 10 ${{ secrets.SERVER_DNS }} >> ~/.ssh/known_hosts
 
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/webserver deployer@${{ secrets.SERVER_DNS }} exit
+
       - name: Install ansible on runner
         run: pip install ansible
 
