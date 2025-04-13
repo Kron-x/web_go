@@ -1,15 +1,23 @@
 ---  
 - name: Ensure keyring directory exists
   file:
-    path: "{{ docker_key_dir }}"
+    path: "{{ docker_key_dir }}" 
     state: directory
     mode: 0755
 
-- name: Download Docker GPG key (proper way)
-  ansible.builtin.get_url:
-    url: "{{ docker_repo_url }}/gpg"
-    dest: "{{ docker_key_dir }}/docker-archive-keyring.gpg"
-    mode: "0644"
+- name: Check if Docker GPG key exists
+  stat:
+    path: "{{ docker_key_dir }}/docker-archive-keyring.gpg"
+  register: docker_key_stat
+  changed_when: false
+
+- name: Download and convert Docker GPG key (if missing)
+  command: >
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg |
+    gpg --dearmor -o {{ docker_key_dir }}/docker-archive-keyring.gpg
+  args:
+    creates: "{{ docker_key_dir }}/docker-archive-keyring.gpg"
+  when: not docker_key_stat.stat.exists
 
 - name: Add Docker repository (secure way)
   ansible.builtin.apt_repository:
@@ -18,7 +26,7 @@
           {{ docker_repo_distribution }} \
           {{ docker_repo_component }}"
     state: present
-    filename: "docker"
+    filename: docker
 
 - name: Update apt cache
   apt:
