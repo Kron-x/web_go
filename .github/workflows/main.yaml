@@ -92,6 +92,6 @@ jobs:
       - name: Starting ansible
         run: |
           pwd
-          ls ./
           cd ansible/
-          ls ./   
+          ls ./ 
+          ansible all -i inventory/hosts -m ping  
