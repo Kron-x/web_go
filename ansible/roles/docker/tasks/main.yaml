@@ -20,11 +20,15 @@
     state: present
     filename: "docker"
 
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
 - name: Install Docker & Docker Compose (v2)
   apt:  
     name: "{{ docker_packages }}"
     state: present    
-    update_cache: yes
+    update_cache: no
 
 - name: Ensure Docker is running  
   service:  
