@@ -78,12 +78,13 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/webserver
           chmod 600 ~/.ssh/webserver
-          # Добавляем сервер в known_hosts (замените your-server-ip)
+          # Добавляем сервер в known_hosts
           ssh-keyscan -T 10 ${{ secrets.SERVER_DNS }} >> ~/.ssh/known_hosts
 
       - name: Test SSH connection
         run: |
           ssh -i ~/.ssh/webserver deployer@${{ secrets.SERVER_DNS }} exit
+          echo "Exit code: $?"
 
       - name: Install ansible on runner
         run: pip install ansible
