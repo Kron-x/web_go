@@ -86,7 +86,7 @@ jobs:
 
       - name: Starting ansible
         run: |
-          echo ./
+          pwd
           ls ./
           cd ansible/
-          ansible-playbook playbook.yaml -vvv    
+          ls ./   
