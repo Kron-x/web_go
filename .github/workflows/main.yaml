@@ -86,12 +86,14 @@ jobs:
           ssh -i ~/.ssh/webserver deployer@${{ secrets.SERVER_DNS }} exit
           echo "Exit code: $?"
 
+
       - name: Install ansible on runner
         run: pip install ansible
 
       - name: Starting ansible
         run: |
-          pwd
           cd ansible/
-          ls -la ~/.ssh/
+          pwd
+          mkdir -p roles/app/defaults
+          echo "postgres_password: ${{ secrets.POSTGRES_PASS }}" >> roles/app/defaults/main.yaml
           ansible-playbook playbook.yaml

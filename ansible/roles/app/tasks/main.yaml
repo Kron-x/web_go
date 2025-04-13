@@ -4,9 +4,6 @@
     path: "{{ app_dir }}/.git"
   register: repo_exists
 
-- name: Check app_dir
-  command: echo {{ app_dir }}
-
 - name: Clone or update repo
   git:
     repo: "{{ app_repo_url }}"
@@ -15,7 +12,18 @@
     force: yes
     version: "{{ app_branch }}"
 
+- name: Create .env
+  ansible.builtin.copy:
+    dest: "{{ app_dir }}/.env"
+    content: |
+      POSTGRES_USER=postgres
+      POSTGRES_PASSWORD={{ postgres_password }}
+      POSTGRES_DB=messages
+      POSTGRES_HOST=postgres
+      POSTGRES_PORT=5432
+    mode: '0644'
+
 - name: Run Docker Compose
-  command: docker compose up -d --force-recreate
+  command: docker compose up -d --force-recreate 
   args:
     chdir: "{{ app_dir }}"
