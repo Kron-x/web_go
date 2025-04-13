@@ -1,0 +1,10 @@
+--- 
+docker_key_dir: /usr/share/keyrings
+docker_repo_url: "https://download.docker.com/linux/ubuntu"
+docker_repo_distribution: noble
+docker_repo_component: stable
+docker_packages:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+  - docker-compose-plugin

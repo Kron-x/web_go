@@ -1,0 +1,4 @@
+---
+app_repo_url: "https://github.com/Kron-x/web_go.git"
+app_dir: "{{ ansible_user_dir }}/server"
+app_branch: "main"

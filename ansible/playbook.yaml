@@ -1,0 +1,8 @@
+---
+- name: Deploy webserver via Docker Compose
+  hosts: "{{ target | default('webserver') }}"  # переменная для выбора цели
+  become: yes
+
+  roles:
+    - role: docker
+    - role: app

@@ -1,0 +1,21 @@
+---
+- name: Check if repo exists
+  stat:
+    path: "{{ app_dir }}/.git"
+  register: repo_exists
+
+- name: Check app_dir
+  run: echo {{ app_dir }}
+
+- name: Clone or update repo
+  git:
+    repo: "{{ app_repo_url }}"
+    dest: "{{ app_dir }}"
+    update: "{{ repo_exists.stat.exists }}"
+    force: yes
+    version: "{{ app_branch }}"
+
+- name: Run Docker Compose
+  command: docker compose up -d --force-recreate
+  args:
+    chdir: "{{ app_dir }}"

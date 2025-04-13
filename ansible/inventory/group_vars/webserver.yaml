@@ -1,0 +1,7 @@
+---
+# Настройки специфичные для production
+app_dirr: /opt/goserv
+docker_users:
+  - deploy_user
+  - www-data
+max_connections: 100

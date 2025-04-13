@@ -1,0 +1,33 @@
+---  
+- name: Ensure keyring directory exists
+  file:
+    path: "{{ docker_key_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Download Docker GPG key (proper way)
+  ansible.builtin.get_url:
+    url: "{{ docker_repo_url }}/gpg"
+    dest: "{{ docker_key_dir }}/docker-archive-keyring.gpg"
+    mode: "0644"
+
+- name: Add Docker repository (secure way)
+  ansible.builtin.apt_repository:
+    repo: "deb [arch=amd64 signed-by={{ docker_key_dir }}/docker-archive-keyring.gpg] \
+          {{ docker_repo_url }} \
+          {{ docker_repo_distribution }} \
+          {{ docker_repo_component }}"
+    state: present
+    filename: "docker"
+
+- name: Install Docker & Docker Compose (v2)
+  apt:  
+    name: "{{ docker_packages }}"
+    state: present    
+    update_cache: yes
+
+- name: Ensure Docker is running  
+  service:  
+    name: docker  
+    state: started  
+    enabled: yes  
