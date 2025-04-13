@@ -94,4 +94,4 @@ jobs:
           pwd
           cd ansible/
           ls -la ~/.ssh/
-          ansible webserver -i inventory/hosts -m ping --config=./ansible.cfg  
+          ansible webserver -m ping
