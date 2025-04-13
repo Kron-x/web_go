@@ -95,5 +95,5 @@ jobs:
           cd ansible/
           pwd
           mkdir -p roles/app/defaults
-          echo "postgres_password: ${{ secrets.POSTGRES_PASS }}" >> roles/app/defaults/main.yaml
+          echo -e "\npostgres_password: ${{ secrets.POSTGRES_PASS }}" >> roles/app/defaults/main.yaml
           ansible-playbook playbook.yaml
