@@ -94,8 +94,4 @@ jobs:
           pwd
           cd ansible/
           ls -la ~/.ssh/
-          echo "-----CHECK CONFIG-----"
-          cat ansible.cfg
-          echo "-----CHECK INVENTORY-----"
-          cat inventory/hosts
-          ANSIBLE_CONFIG=./ansible.cfg ansible webserver -m ping
+          ansible-playbook playbook.yaml
