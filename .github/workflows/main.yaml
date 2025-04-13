@@ -93,5 +93,10 @@ jobs:
         run: |
           pwd
           cd ansible/
-          ls ./ 
+          ls -la ~/.ssh/
+          # Проверяем, что файл существует и не пустой
+          if [ ! -f ~/.ssh/webserver ]; then
+            echo "Файл ключа не найден!"
+            exit 1
+          fi
           ansible all -i inventory/hosts -m ping  
