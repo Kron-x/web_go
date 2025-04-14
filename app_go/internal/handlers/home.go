@@ -3,9 +3,15 @@ package handlers
 import (
     "fmt"
     "net/http"
+	"app_go/pkg/metrics"
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
+	
+	metrics.PageVisits.WithLabelValues("/").Inc()
+    metrics.ActiveUsers.Inc()
+    defer metrics.ActiveUsers.Dec()
+
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	fmt.Fprintf(w, `
 		<h1>Welcome to the Image Server</h1>

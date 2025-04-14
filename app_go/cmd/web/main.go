@@ -15,11 +15,15 @@ import (
     "github.com/prometheus/client_golang/prometheus/promhttp"
 	"app_go/internal/handlers"   //импорт кастомных хендлеров
     "app_go/pkg/config"
-    "app_go/pkg/postgres"  
+    "app_go/pkg/postgres"
+    "app_go/pkg/metrics"  
 )
 
 func main() {
-    config := config.LoadConfig()
+
+    config := config.LoadConfig() // берем данные из конфига
+
+    metrics.Init() // добавление кастомных метрик в /metrics
 
     // Настройка логгера
     logFile, err := os.OpenFile(config.LogFile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
@@ -68,11 +72,23 @@ func main() {
 
     // 2. Основной сервер (как было)
     mainMux := http.NewServeMux()
-    mainMux.Handle("/", handlers.LoggingMiddleware(http.HandlerFunc(handlers.HomeHandler)))
+
+    mainMux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(http.StatusNoContent) })
+    mainMux.Handle("/new-dimension", handlers.ActivityMiddleware(handlers.LoggingMiddleware(http.HandlerFunc(handlers.NewDimensionHandler))))
+    mainMux.Handle("/submit-text", handlers.ActivityMiddleware(handlers.LoggingMiddleware(http.HandlerFunc(handlers.SubmitTextHandler))))
     mainMux.Handle("/images/", handlers.LoggingMiddleware(http.StripPrefix("/images/", http.FileServer(http.Dir(config.ImagesDir)))))
-    mainMux.HandleFunc("/new-dimension", handlers.NewDimensionHandler)
-    mainMux.HandleFunc("/health", handlers.HealthHandler)
-    mainMux.HandleFunc("/submit-text", handlers.SubmitTextHandler)
+    mainMux.HandleFunc("/health", handlers.HealthHandler)  
+    mainMux.Handle("/", handlers.ActivityMiddleware(handlers.LoggingMiddleware(
+        http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            if r.URL.Path != "/" { // Если путь не корневой
+                http.NotFound(w, r)
+                return
+            }
+            handlers.HomeHandler(w, r)
+        }),
+    )))
+
+
 
     mainServer := &http.Server{
         Addr: ":" + config.Port,

@@ -7,17 +7,27 @@ import (
     "net/http"
     "time"
 	"app_go/pkg/postgres"
+	"app_go/pkg/metrics"
 )
 
 // логирования запросов
 func LoggingMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        // игнорим запрос иконки
+		if r.URL.Path == "/favicon.ico" {
+            next.ServeHTTP(w, r)
+            return
+        }
         log.Printf("Incoming request: %s %s", r.Method, r.URL.Path)
         next.ServeHTTP(w, r)
     })
 }
-
 func SubmitTextHandler(w http.ResponseWriter, r *http.Request) {
+	
+	metrics.PageVisits.WithLabelValues("/submit-text").Inc()
+    metrics.ActiveUsers.Inc()
+    defer metrics.ActiveUsers.Dec()
+
 	// Проверяем метод запроса
 	if r.Method != http.MethodPost {
 		http.Error(w, "Метод не поддерживается", http.StatusMethodNotAllowed)
@@ -57,6 +67,11 @@ func SubmitTextHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func NewDimensionHandler(w http.ResponseWriter, r *http.Request) {
+
+	metrics.PageVisits.WithLabelValues("/new-dimension").Inc()
+    metrics.ActiveUsers.Inc()
+    defer metrics.ActiveUsers.Dec()
+
 	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
 	currentTime := time.Now().Format("2006-01-02 15:04:05")
 	fmt.Fprintf(w, `
@@ -68,4 +83,13 @@ func NewDimensionHandler(w http.ResponseWriter, r *http.Request) {
 func HealthHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "OK")
+}
+
+// middleware для отслеживания активности
+func ActivityMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+        metrics.ActiveUsers.Inc()
+        defer metrics.ActiveUsers.Dec()
+        next.ServeHTTP(w, r)
+    })
 }
