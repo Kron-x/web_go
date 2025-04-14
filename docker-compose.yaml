@@ -31,11 +31,37 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  
+  # Контейнер с прометеусом
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - "9090:9090"  # Веб-интерфейс Prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # Конфиг
+    networks:
+      - app-network
+    depends_on:
+      - app
+
+  # Grafana для визуализации
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"  # Веб-интерфейс Grafana
+    volumes:
+      - grafana-storage:/var/lib/grafana  # Сохраняем дашборды
+    networks:
+      - app-network
+    depends_on:
+      - prometheus  # Grafana зависит от Prometheus
+
 
 # Объявляем сети и тома
 volumes:
   postgres_data:  # Том для данных Postgres (не удаляется при перезапуске)
-
+  grafana-storage:
+  
 # Локальная сеть???
 networks:
   app-network:
