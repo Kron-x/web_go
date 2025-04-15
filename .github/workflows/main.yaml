@@ -21,9 +21,7 @@ jobs:
           POSTGRES_DB=test
           POSTGRES_HOST=postgres
           POSTGRES_PORT=5432
-          # Добавьте другие переменные, если нужно
           EOF
-          cat .env  # Для проверки (опционально)
           
       - name: Install Docker Compose (v2)
         run: |
@@ -96,4 +94,6 @@ jobs:
           pwd
           mkdir -p roles/app/defaults
           echo -e "\npostgres_password: ${{ secrets.POSTGRES_PASS }}" >> roles/app/defaults/main.yaml
+          echo -e "\ntelegram_bot_token: ${{ secrets.BOT_TOKEN}}" >> roles/app/defaults/main.yaml
+          echo -e "\ntelegram_chat_id: ${{ secrets.BOT_CHAT_ID }}" >> roles/app/defaults/main.yaml
           ansible-playbook playbook.yaml

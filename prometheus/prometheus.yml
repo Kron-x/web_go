@@ -1,7 +1,22 @@
 global:
-  scrape_interval: 15s  # Частота сбора метрик
+  scrape_interval: 15s        # Как часто собирать метрики
+  evaluation_interval: 20s    # Как часто проверять правила (alert/record)
+
+rule_files:
+  - '/etc/prometheus/record.rules.yml'  # Record Rules
+  - '/etc/prometheus/alert.rules.yml'
+
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets: ['alertmanager:9093']
 
 scrape_configs:
   - job_name: "app"
     static_configs:
-      - targets: ["app:8080"]  # Имя сервиса из docker-compose + порт метрик
+      - targets: ["app:8080"] 
+
+  - job_name: 'node_exporter'
+    scrape_interval: 5s 
+    static_configs:
+      - targets: ['node_exporter:9100']

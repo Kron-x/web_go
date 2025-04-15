@@ -1,0 +1,40 @@
+route:
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 1h 
+
+  # Дефолтный получатель (если ни один route не сработал)
+  receiver: 'telegram-warning'
+
+  # Правила маршрутизации (проверяются сверху вниз!)
+  routes:
+  - match:
+      severity: 'critical'
+    receiver: 'telegram-critical'
+    continue: true
+
+  - match:
+      severity: 'warning'
+    receiver: 'telegram-warning'
+
+receivers:
+- name: 'telegram-critical'
+  telegram_configs:
+  - api_url: "https://api.telegram.org"
+    bot_token: "$TELEGRAM_BOT_TOKEN"
+    chat_id: $TELEGRAM_CHAT_ID
+    message: "🚨 CRITICAL: {{ .CommonAnnotations.summary }}"
+    parse_mode: "HTML"
+
+- name: 'telegram-warning'
+  telegram_configs:
+  - api_url: "https://api.telegram.org"
+    bot_token: "$TELEGRAM_BOT_TOKEN"
+    chat_id: $TELEGRAM_CHAT_ID
+    message: |
+      {{ if eq .Labels.severity "warning" }}
+      ⚠️ WARNING: {{ .CommonAnnotations.summary }}
+      {{ else }}
+      ℹ️ INFO: {{ .CommonAnnotations.summary }}
+      {{ end }}
+    parse_mode: "HTML"

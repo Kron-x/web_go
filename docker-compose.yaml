@@ -38,7 +38,7 @@ services:
     ports:
       - "9090:9090"  # Веб-интерфейс Prometheus
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # Конфиг
+      - ./prometheus/:/etc/prometheus/  # Конфиr|Алерты
     networks:
       - app-network
     depends_on:
@@ -56,7 +56,36 @@ services:
     depends_on:
       - prometheus  # Grafana зависит от Prometheus
 
+  # Добавляем node_exporter
+  node_exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.ignored-mount-points=^/(sys|proc|dev|host|etc)($$|/)'
+    ports:
+      - '9100:9100'
+    networks:
+      - app-network
+    pid: "host"  # Важно для доступа к системным метрикам
 
+  alertmanager:
+    container_name: alertmanager
+    image: prom/alertmanager:latest
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+    networks:
+      - app-network
+    depends_on:
+      - prometheus 
+    
 # Объявляем сети и тома
 volumes:
   postgres_data:  # Том для данных Postgres (не удаляется при перезапуске)

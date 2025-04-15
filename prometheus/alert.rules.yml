@@ -1,0 +1,19 @@
+groups:
+- name: host_alerts
+  rules:
+  - alert: HighCPU
+    expr: instance:node_cpu_usage:percentage > 90
+    for: 20s
+    labels:
+      severity: "critical"
+    annotations:
+      summary: "High CPU usage ({{ $value }}%) on {{ $labels.instance }}"
+      description: "CPU превысил 90% более чем на 2 минут."
+
+  - alert: HighMemory
+    expr: instance:node_memory_usage:percentage > 85
+    for: 2m
+    labels:
+      severity: "warning"
+    annotations:
+      summary: "High RAM usage ({{ $value }}%) on {{ $labels.instance }}"

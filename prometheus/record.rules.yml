@@ -1,0 +1,13 @@
+groups:
+- name: host_metrics
+  interval: 15s
+  rules:
+  - record: instance:node_cpu_usage:percentage
+    expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100)
+    labels:
+      metric_type: "cpu"
+
+  - record: instance:node_memory_usage:percentage
+    expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / node_memory_MemTotal_bytes * 100
+    labels:
+      metric_type: "memory"
