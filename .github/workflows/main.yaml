@@ -32,7 +32,7 @@ jobs:
 
       - name: Run services
         run: |
-          docker compose up -d app postgress
+          docker compose up -d app postgres
           docker compose ps
 
       - name: Waiting connect to webserver
