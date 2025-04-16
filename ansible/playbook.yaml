@@ -4,7 +4,7 @@
   become: yes
 
   vars:
-    is_local: "{{ target == 'localhost' }}"
+    is_local: "{{ (target | default('webserver')) == 'localhost' }}"
     
   roles:
     - role: docker
