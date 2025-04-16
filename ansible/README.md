@@ -9,7 +9,7 @@ ansible/                    # Корневая директория ansible
 |   └── hosts               # Инвентарь для плейбука   
 ├── playbook.yaml           # Плейбук
 ├── README.md  
-├── roles/              
+└── roles/              
     ├── app/                # Запуск docker compose
     |   ├── defaults/            
     │   │   └── main.yaml
