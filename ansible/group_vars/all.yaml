@@ -1,3 +1,3 @@
 postgres_password: "postgres"
-telegram_bot_token: "none"
+telegram_bot_token: "NONE"
 telegram_chat_id: "12345678"
