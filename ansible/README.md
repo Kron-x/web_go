@@ -1,5 +1,4 @@
-description:
-
+```plaintext
 ansible/                    # Корневая директория ansible
 ├── ansible.cfg             # Конфиг с параметрами запуска
 ├── defaults/                  

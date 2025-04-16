@@ -1,5 +1,4 @@
-description:
-
+```plaintext
 app_go/                   # Корневая директория app 
 ├── configs/
 │   └── config.json       # Конфиг с параметрами запуска (порт, путь к изображениям)
