@@ -5,7 +5,7 @@
    - Grafana: 3000 
    - Alertmanager: 9093
    
-## **Запуск**
+## **Starting**
 1. `git clone github.com/Kron-x/web_go`
 2. `cd web_go`
 3. Add secrets in ansible/roles/app/defaults/main.yaml
