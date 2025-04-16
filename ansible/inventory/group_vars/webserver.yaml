@@ -1,7 +1,4 @@
 ---
 # Настройки специфичные для production
-app_dirr: /opt/goserv
-docker_users:
-  - deploy_user
-  - www-data
+app_dir: "{{ ansible_user_dir }}/web_go"
 max_connections: 100

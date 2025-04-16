@@ -3,6 +3,12 @@
   hosts: "{{ target | default('webserver') }}"  # переменная для выбора цели
   become: yes
 
+  vars:
+    is_local: "{{ target == 'localhost' }}"
+    
   roles:
     - role: docker
-    - role: app
+    - role: app_local
+      when: is_local
+    - role: app_webserver
+      when: not is_local

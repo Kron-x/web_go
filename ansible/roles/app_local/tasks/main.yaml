@@ -1,0 +1,40 @@
+---
+- name: Create .env
+  ansible.builtin.copy:
+    dest: ".env"
+    content: |
+      POSTGRES_USER=postgres
+      POSTGRES_PASSWORD={{ postgres_password }}
+      POSTGRES_DB=messages
+      POSTGRES_HOST=postgres
+      POSTGRES_PORT=5432
+      TELEGRAM_BOT_TOKEN={{ telegram_bot_token }}
+      TELEGRAM_CHAT_ID={{ telegram_chat_id }}
+    mode: '0644'
+
+- name: Ensure alertmanager directory exists
+  ansible.builtin.file:
+    path: "alertmanager"
+    state: directory
+    mode: '0755'
+
+- name: Install gettext for envsubst
+  become: yes
+  apt:
+    name: gettext-base
+    state: present
+  when: ansible_os_family == 'Debian'
+
+- name: Generate alertmanager.yml from template
+  ansible.builtin.shell: |
+    envsubst < "alertmanager/alertmanager.yml.template" > "alertmanager/alertmanager.yml"
+  environment:
+    TELEGRAM_BOT_TOKEN: "{{ telegram_bot_token }}"
+    TELEGRAM_CHAT_ID: "{{ telegram_chat_id }}"
+  args:
+    executable: /bin/sh
+
+- name: Run Docker Compose
+  command: docker compose up -d --force-recreate
+  args:
+    chdir: "."
