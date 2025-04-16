@@ -19,4 +19,4 @@
    - `echo -e "\ntelegram_bot_token: your_bot_token" >> roles/app_local/defaults/main.yaml`
    - `echo -e "\ntelegram_chat_id: your_chat_id" >> roles/app_local/defaults/main.yaml`  
    (replace **your_bot_token** and **your_chat_id**)
-4. `ansible-playbook ansible/playbook.yaml -e "target=localhost"`
+4. `ansible-playbook playbook.yaml -e "target=localhost"`
