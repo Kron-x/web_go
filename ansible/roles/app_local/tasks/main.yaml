@@ -1,20 +1,18 @@
 ---
 - name: Create .env
   ansible.builtin.copy:
-    dest: ".env"
+    dest: "../.env"
     content: |
       POSTGRES_USER=postgres
       POSTGRES_PASSWORD={{ postgres_password }}
       POSTGRES_DB=messages
       POSTGRES_HOST=postgres
       POSTGRES_PORT=5432
-      TELEGRAM_BOT_TOKEN={{ telegram_bot_token }}
-      TELEGRAM_CHAT_ID={{ telegram_chat_id }}
     mode: '0644'
 
 - name: Ensure alertmanager directory exists
   ansible.builtin.file:
-    path: "alertmanager"
+    path: "../alertmanager"
     state: directory
     mode: '0755'
 
@@ -27,7 +25,7 @@
 
 - name: Generate alertmanager.yml from template
   ansible.builtin.shell: |
-    envsubst < "alertmanager/alertmanager.yml.template" > "alertmanager/alertmanager.yml"
+    envsubst < "../alertmanager/alertmanager.yml.template" > "../alertmanager/alertmanager.yml"
   environment:
     TELEGRAM_BOT_TOKEN: "{{ telegram_bot_token }}"
     TELEGRAM_CHAT_ID: "{{ telegram_chat_id }}"
@@ -37,4 +35,4 @@
 - name: Run Docker Compose
   command: docker compose up -d --force-recreate
   args:
-    chdir: "."
+    chdir: "../"
