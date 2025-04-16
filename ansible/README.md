@@ -10,7 +10,12 @@ ansible/                    # Корневая директория ansible
 ├── playbook.yaml           # Плейбук
 ├── README.md  
 └── roles/              
-    ├── app/                # Запуск docker compose
+    ├── app_local/          # Запуск при target=localhost
+    |   ├── defaults/            
+    │   │   └── main.yaml
+    │   └── tasks/
+    │       └── main.yaml
+    ├── app_webserver/      # Запуск default (для pipeline)
     |   ├── defaults/            
     │   │   └── main.yaml
     │   └── tasks/
