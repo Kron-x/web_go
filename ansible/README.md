@@ -1,8 +1,8 @@
 ```plaintext
 ansible/                    # Корневая директория ansible
 ├── ansible.cfg             # Конфиг с параметрами запуска
-├── defaults/                  
-│   └── main.yaml/          # Переменные по умолчанию (заглушки)
+├── group_vars/                  
+│   └── all.yaml/           # Переменные по умолчанию (заглушки)
 ├── inventory/         
 │   ├── group_vars/       
 |   |   └── webserver.yaml  # Переменные вебсервера   

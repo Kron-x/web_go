@@ -10,13 +10,13 @@
 ### **Pre-install**
 - git
 - python
-- ansible (after python: `pip install ansible`)
+- ansible (`apt install ansible`)
 
 ### **Steps**
-1. `git clone github.com/Kron-x/web_go`
-2. `cd web_go`
+1. `git clone git@github.com:Kron-x/web_go`
+2. `cd web_go/ansible/`
 3. Add secrets in ansible/roles/app/defaults/main.yaml
-   - `echo -e "\ntelegram_bot_token: your_bot_token" >> ansible/roles/app_local/defaults/main.yaml`
-   - `echo -e "\ntelegram_chat_id: your_chat_id" >> ansible/roles/app_local/defaults/main.yaml`  
+   - `echo -e "\ntelegram_bot_token: your_bot_token" >> roles/app_local/defaults/main.yaml`
+   - `echo -e "\ntelegram_chat_id: your_chat_id" >> roles/app_local/defaults/main.yaml`  
    (replace **your_bot_token** and **your_chat_id**)
-4. `ansible-playbook ansible/playbook.yaml --playbook-dir=ansible/ -e "target=localhost"`
+4. `ansible-playbook ansible/playbook.yaml -e "target=localhost"`
